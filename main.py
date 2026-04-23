@@ -88,7 +88,6 @@ else:
 st.subheader("Pré-visualização dos dados")
 st.dataframe(df.head(20), use_container_width=True)
 
-
 # 3. FILTROS E AGRUPAMENTOS
 st.sidebar.header("Filtros")
 tipos = st.sidebar.multiselect("Tipo", sorted(df["Tipo"].dropna().unique()),
@@ -126,9 +125,7 @@ cor_label = st.sidebar.selectbox("Cor / Série", ["Nenhuma"] + list(dimensoes.ke
 grafico = st.sidebar.selectbox("Tipo de gráfico", ["Barra", "Linha", "Pizza", "Área"])
 agregacao = st.sidebar.selectbox("Agregação", ["Soma", "Média", "Contagem"])
 
-
 # 4. MÉTRICAS
-
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Registros filtrados", f"{len(df_f):,}".replace(",", "."))
@@ -143,9 +140,7 @@ if df_f.empty:
     st.warning("Nenhum dado encontrado com os filtros escolhidos.")
     st.stop()
 
-
 # 5. GRÁFICO DINÂMICO
-
 x = dimensoes[x_label]
 cor = None if cor_label == "Nenhuma" else dimensoes[cor_label]
 
@@ -184,9 +179,7 @@ else:
 fig_main.update_layout(xaxis_title=x_label, yaxis_title=titulo_y)
 st.plotly_chart(fig_main, use_container_width=True)
 
-
 # 6. QUADRO COMPARATIVO E DETECÇÃO DE PERDAS
-
 st.subheader("Quadro Comparativo: Orçado vs Realizado")
 
 df_comp = df_f.groupby([x, "Tipo"], as_index=False)["Valor"].sum()
@@ -207,9 +200,7 @@ if "Realizado" in df_pivot.columns and "Orçado" in df_pivot.columns:
     )
     st.plotly_chart(fig_comp, use_container_width=True)
 
-
 # 7. TABELAS E EXPORTAÇÃO
-
 st.subheader("Tabela resumida")
 st.dataframe(df_plot, use_container_width=True)
 
@@ -246,9 +237,12 @@ with col_download_pdf:
 
         for fig in figs_to_export:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                # O motor Kaleido requer que uma string seja passada para write_image
                 fig.write_image(tmpfile.name, format="png", engine="kaleido")
                 pdf.image(tmpfile.name, w=190)
-                os.unlink(tmpfile.name)
+
+            # CORREÇÃO AQUI: A deleção acontece APÓS o arquivo ser fechado pelo 'with'
+            os.unlink(tmpfile.name)
 
         return pdf.output(dest='S').encode('latin-1')
 
