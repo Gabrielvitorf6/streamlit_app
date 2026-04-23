@@ -272,3 +272,5 @@ with st.expander("Como este dashboard funciona"):
         - Exportação da visualização para PDF
         """
     )
+
+    #Comentário pra testar commit + push
